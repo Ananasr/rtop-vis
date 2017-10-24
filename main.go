@@ -14,6 +14,7 @@ furnished to do so, subject to the following conditions:
 The above copyright notice and this permission notice shall be included in
 all copies or substantial portions of the Software.
 
+
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -26,6 +27,7 @@ THE SOFTWARE.
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"log"
 	"os"
@@ -68,8 +70,15 @@ will show 10 minutes of history.
 
 func main() {
 
-	if len(os.Args) == 1 {
-		usage(1)
+	env := os.Getenv("APP_ENV")
+
+	if env == "production" {
+		log.Println("Running rtop-vis in production mode")
+		if len(os.Args) == 1 {
+			usage(1)
+		}
+	} else {
+		log.Println("Running rtop-vis in dev mode")
 	}
 
 	log.SetPrefix("rtop-vis: ")
@@ -91,12 +100,19 @@ func main() {
 
 	// start connecting
 	allStats = NewHostStats(HISTORY_LENGTH)
-	for _, host := range os.Args[1:] {
+	hosts, err := readLines("hosts")
+
+	if err != nil {
+		log.Print(err)
+		return
+	}
+
+	for _, host := range hosts /*os.Args[1:]*/ {
 		go doHost(host)
 	}
 
 	// start the web server
-	go startWeb()
+	go startApi()
 
 	// wait for ^C
 	ch := make(chan os.Signal, 1)
@@ -148,7 +164,7 @@ func doHost(host string) {
 	}
 
 	addr := fmt.Sprintf("%s:%d", host, port)
-	client := sshConnect(username, addr, key)
+	client := SshConnect(username, addr, key)
 	if client == nil {
 		return
 	}
@@ -159,4 +175,26 @@ func doHost(host string) {
 		allStats.GetRing(stats.Hostname).Add(stats)
 		time.Sleep(DEFAULT_REFRESH * time.Second)
 	}
+}
+
+// readLines reads a whole file into memory
+// and returns a slice of its lines.
+func readLines(path string) ([]string, error) {
+
+	file, err := os.Open(path)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer file.Close()
+
+	var lines []string
+
+	scanner := bufio.NewScanner(file)
+
+	for scanner.Scan() {
+		lines = append(lines, scanner.Text())
+	}
+	return lines, scanner.Err()
 }

@@ -99,6 +99,7 @@ func tryAgentConnect(user, addr string) (client *ssh.Client) {
 		config := &ssh.ClientConfig{
 			User: user,
 			Auth: []ssh.AuthMethod{auth},
+			HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 		}
 		client, _ = ssh.Dial("tcp", addr, config)
 	}
@@ -106,7 +107,7 @@ func tryAgentConnect(user, addr string) (client *ssh.Client) {
 	return
 }
 
-func sshConnect(user, addr, keypath string) (client *ssh.Client) {
+func SshConnect(user, addr, keypath string) (client *ssh.Client) {
 	// try connecting via agent first
 	client = tryAgentConnect(user, addr)
 	if client != nil {
@@ -130,7 +131,7 @@ func sshConnect(user, addr, keypath string) (client *ssh.Client) {
 	return
 }
 
-func runCommand(client *ssh.Client, command string) (stdout string, err error) {
+func RunCommand(client *ssh.Client, command string) (stdout string, err error) {
 	session, err := client.NewSession()
 	if err != nil {
 		//log.Print(err)

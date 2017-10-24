@@ -1,0 +1,21 @@
+body { background: #E8F5E9; font-family: "Source Sans Pro", sans-serif; font-size: 12px; }
+
+.chart {
+		width: 324px; height: 200px; border-radius: 3px; background-color: #fff;
+		box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+		margin: 5px;
+}
+
+.chartc {
+		display: flex; display: -webkit-flex; flex-wrap: wrap; -webkit-flex-wrap: wrap;
+}
+
+.dygraph-legend { font-size: 12px !important; }
+
+.dygraph-title { font-size: 14px; font-weight: 400; }
+
+h2 { text-align: center; font-size: 24px; padding: 1.1em; }
+
+.footer { margin: 5em 0 2em 0; color: #aaa; text-align: center; font-size: 14px }
+
+a { color: #777; }

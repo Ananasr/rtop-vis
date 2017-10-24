@@ -1,0 +1,11 @@
+version: "3"
+services:
+  rtop-vis:
+    build: .
+    volumes:
+      - ${PWD}:/go/src/rtop-vis
+      - ${SSH_AUTH_SOCK}:/ssh-agent
+    environment:
+      - SSH_AUTH_SOCK=/ssh-agent
+    ports:
+      - "8080:8080"
