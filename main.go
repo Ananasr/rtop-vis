@@ -112,7 +112,8 @@ func main() {
 	}
 
 	// start the web server
-	go startApi()
+	//go startApi()
+	go startWS()
 
 	// wait for ^C
 	ch := make(chan os.Signal, 1)
