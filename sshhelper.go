@@ -97,8 +97,8 @@ func getAgentAuth() (auth ssh.AuthMethod, ok bool) {
 func tryAgentConnect(user, addr string) (client *ssh.Client) {
 	if auth, ok := getAgentAuth(); ok {
 		config := &ssh.ClientConfig{
-			User: user,
-			Auth: []ssh.AuthMethod{auth},
+			User:            user,
+			Auth:            []ssh.AuthMethod{auth},
 			HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 		}
 		client, _ = ssh.Dial("tcp", addr, config)

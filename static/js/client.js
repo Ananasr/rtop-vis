@@ -1,4 +1,34 @@
 $(function() {
+    var ws;
+
+    if (window.WebSocket === undefined) {
+        $("#container").append("Your browser does not support WebSockets");
+        return;
+    } else {
+        ws = initWS();
+    }
+
+    function initWS() {
+        var socket = new WebSocket("ws://localhost:8080/ws"),
+            container = $("#container");
+        socket.onopen = function() {
+            container.append("<p>Socket is open</p>");
+        };
+        socket.onmessage = function (e) {
+            container.prepend("<p> Got some shit:" + e.data + "</p>");
+        };
+        socket.onclose = function () {
+            container.append("<p>Socket closed</p>");
+        };
+
+        return socket;
+    }
+
+    $("#sendBtn").click(function (e) {
+        e.preventDefault();
+        ws.send(JSON.stringify({ Num: parseInt($("#numberfield").val()) }));
+    });
+
     var laDictGraph = {}; // Dict. of Load Average graphs
     var memDictGraph = {}; // Dict. of Memory graphs
     var cpuDictGraph = {}; // Ditc. of CPU graphs
@@ -17,40 +47,40 @@ $(function() {
                 var host = hosts[i];
                 getStats(host, function(data) {
                     var loadAverageGraph = new Dygraph(
-			                  document.getElementById("id-" + data[0].Hostname),
-			                  getLoadAverage(data),
-			                  {
-				                    title: data[0].Hostname,
-				                    axisLabelFontSize: 10,
-				                    axes: { y: { axisLabelWidth: 30 } },
-				                    labels: [ "X", "Load Average" ],
-          		              gridLineColor: 'rgb(200,200,200)'
-			                  });
+                        document.getElementById("id-" + data[0].Hostname),
+                        getLoadAverage(data),
+                        {
+                            title: data[0].Hostname,
+                            axisLabelFontSize: 10,
+                            axes: { y: { axisLabelWidth: 30 } },
+                            labels: [ "X", "Load Average" ],
+                            gridLineColor: 'rgb(200,200,200)'
+                        });
 
                     var memGraph = new Dygraph(
-			                  document.getElementById("mid-" + data[0].Hostname),
-			                  getMemory(data),
-			                  {
-				                    title: data[0].Hostname,
-				                    axisLabelFontSize: 10,
-				                    axes: { y: { axisLabelWidth: 30 } },
-				                    labels: [ "X", "cached", "buffers", "free", "used" ],
-          		              labelsKMG2: true,
-				                    stackedGraph: true,
-          		              gridLineColor: 'rgb(200,200,200)'
-			                  });
+                        document.getElementById("mid-" + data[0].Hostname),
+                        getMemory(data),
+                        {
+                            title: data[0].Hostname,
+                            axisLabelFontSize: 10,
+                            axes: { y: { axisLabelWidth: 30 } },
+                            labels: [ "X", "cached", "buffers", "free", "used" ],
+                            labelsKMG2: true,
+                            stackedGraph: true,
+                            gridLineColor: 'rgb(200,200,200)'
+                        });
 
                     var cpuGraph = new Dygraph(
-			                  document.getElementById("cpu-" + data[0].Hostname),
-			                  getCPU(data),
-			                  {
-				                    title: data[0].Hostname,
-				                    axisLabelFontSize: 10,
-				                    axes: { y: { axisLabelWidth: 30 } },
-				                    labels: [ "X", "user", "nice", "system", "idle", "iowait", "irq", "softir", "steal", "guest" ],
-				                    stackedGraph: true,
-          		              gridLineColor: 'rgb(200,200,200)'
-			                  });
+                        document.getElementById("cpu-" + data[0].Hostname),
+                        getCPU(data),
+                        {
+                            title: data[0].Hostname,
+                            axisLabelFontSize: 10,
+                            axes: { y: { axisLabelWidth: 30 } },
+                            labels: [ "X", "user", "nice", "system", "idle", "iowait", "irq", "softir", "steal", "guest" ],
+                            stackedGraph: true,
+                            gridLineColor: 'rgb(200,200,200)'
+                        });
 
                     laDictGraph[data[0].Hostname] = loadAverageGraph;
                     memDictGraph[data[0].Hostname] = memGraph;
