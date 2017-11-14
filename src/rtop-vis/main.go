@@ -48,7 +48,8 @@ const (
 var (
 	currentUser   *user.User
 	sshConfigRead bool
-	allStats      *HostStats
+	//allStats      *HostStats
+	allStats chan *Stats
 )
 
 func usage(code int) {
@@ -99,7 +100,8 @@ func main() {
 	}
 
 	// start connecting
-	allStats = NewHostStats(HISTORY_LENGTH)
+	//allStats = NewHostStats(HISTORY_LENGTH)
+	allStats = make(chan *Stats, 1024)
 	hosts, err := readLines("hosts")
 
 	if err != nil {
@@ -112,7 +114,8 @@ func main() {
 	}
 
 	// start the web server
-	go startApi()
+	//go startApi()
+	go startWS()
 
 	// wait for ^C
 	ch := make(chan os.Signal, 1)
@@ -172,7 +175,8 @@ func doHost(host string) {
 	for {
 		stats := Stats{At: time.Now(), Hostname: host}
 		getAllStats(client, &stats)
-		allStats.GetRing(stats.Hostname).Add(stats)
+		allStats <- &stats
+		//allStats.GetRing(stats.Hostname).Add(stats)
 		time.Sleep(DEFAULT_REFRESH * time.Second)
 	}
 }
